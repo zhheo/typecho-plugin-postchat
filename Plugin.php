@@ -16,7 +16,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
  *
  * @package PostChat
  * @author 张洪Heo
- * @version 1.0.0
+ * @version 1.1.0
  * @link http://zhheo.com/
  */
 class PostChat_Plugin implements PluginInterface
@@ -60,6 +60,7 @@ class PostChat_Plugin implements PluginInterface
         $form->addInput(new Text('blacklist', NULL, '', _t('黑名单'), _t('填写相关的json地址，帮助文档：https://postsummary.zhheo.com/parameters.html#tianligpt-blacklist')));
         $form->addInput(new Text('wordLimit', NULL, '1000', _t('字数限制'), _t('危险操作！如果没有在文章摘要中开启url绑定，更改此变量损失已消耗过的key，因为你提交的内容发生了变化。（PostChat用户无影响，因为摘要数量是无限的）可以设置提交的字数限制，默认为1000字。帮助文档：https://postsummary.zhheo.com/parameters.html#tianligpt-wordlimit')));
         $form->addInput(new Checkbox('typingAnimate', array('true' => '打字动画效果'), array('true'), _t('打字动画效果')));
+        $form->addInput(new Text('beginningText', NULL, '这篇文章介绍了', _t('对话开头文本'), _t('设置对话开头的文本内容')));
 
         $form->addInput(new Checkbox('enableAI', array('true' => '开启PostChat智能对话'), array('true'), _t('开启PostChat智能对话')));
         $form->addInput(new Text('backgroundColor', NULL, '#3e86f6', _t('背景颜色'), _t('调整按钮背景色彩')));
@@ -119,6 +120,7 @@ class PostChat_Plugin implements PluginInterface
             'userTitle' => 'PostChat',
             'userDesc' => '如果你对网站的内容有任何疑问，可以来问我哦～',
             'addButton' => false,
+            'beginningText' => '这篇文章介绍了',
         ];
 
         foreach ($defaults as $key => $value) {
@@ -166,7 +168,8 @@ class PostChat_Plugin implements PluginInterface
                   showInviteLink: ' . $showInviteLink . ',
                   userTitle: "' . $settings->userTitle . '",
                   userDesc: "' . $settings->userDesc . '",
-                  addButton: ' . $addButton . '
+                  addButton: ' . $addButton . ',
+                  beginningText: "' . $settings->beginningText . '",
                 };
                 </script>
                 <script data-postChat_key="' . $settings->key . '" src="' . $scriptUrl . '"></script>';
