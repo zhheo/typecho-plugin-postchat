@@ -16,7 +16,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
  *
  * @package PostChat
  * @author 张洪Heo
- * @version 1.2.0
+ * @version 2.0.0
  * @link http://zhheo.com/
  */
 class PostChat_Plugin implements PluginInterface
@@ -51,7 +51,7 @@ class PostChat_Plugin implements PluginInterface
     public static function config(Form $form)
     {
         $form->addInput(new Text('key', NULL, '70b649f150276f289d1025508f60c5f58a', _t('账户KEY'), _t('使用PostChat的用户请前往 https://ai.tianli0.top/ 获取 KEY，只使用文章摘要的用户前往 https://summary.zhheo.com/ 获取 KEY 。示例的Key不支持文章摘要和自定义的知识库问答，但可以使用作者的知识库对话')));
-
+        
         $form->addInput(new Checkbox('enableSummary', array('true' => '开启文章摘要'), array('true'), _t('开启文章摘要')));
         $form->addInput(new Text('postSelector', NULL, '#postchat_postcontent', _t('文章选择器'), _t('文章选择器，用于选择文章内容。如果没有正常显示摘要，你需要访问 https://postsummary.zhheo.com/theme/custom.html#%E8%8E%B7%E5%8F%96tianligpt-postselector 学习获取，也可以联系 zhheo@qq.com 发送你的网站地址后获取')));
         $form->addInput(new Text('title', NULL, '文章摘要', _t('摘要标题'), _t('摘要标题，用于显示在摘要顶部的自定义内容')));
@@ -64,6 +64,7 @@ class PostChat_Plugin implements PluginInterface
         $form->addInput(new Text('summaryTheme', NULL, 'default', _t('文章摘要主题'), _t('设置文章摘要的主题样式，详情请见https://postchat.zhheo.com/theme.html')));
 
         $form->addInput(new Checkbox('enableAI', array('true' => '开启PostChat智能对话'), array('true'), _t('开启PostChat智能对话')));
+        $form->addInput(new Text('userMode', NULL, 'magic', _t('界面模式'), _t('可选 iframe 或 magic，默认使用 magic')));
         $form->addInput(new Text('backgroundColor', NULL, '#3e86f6', _t('背景颜色'), _t('调整按钮背景色彩')));
         $form->addInput(new Text('fill', NULL, '#FFFFFF', _t('填充颜色'), _t('调整按钮里面图标的颜色')));
         $form->addInput(new Text('bottom', NULL, '16px', _t('底部距离'), _t('按钮距离底部的边距')));
@@ -77,6 +78,9 @@ class PostChat_Plugin implements PluginInterface
         $form->addInput(new Text('userTitle', NULL, 'PostChat', _t('界面标题'), _t('你要自定义的PostChat界面标题')));
         $form->addInput(new Text('userDesc', NULL, '如果你对网站的内容有任何疑问，可以来问我哦～', _t('聊天界面描述'), _t('你要自定义的PostChat聊天界面描述')));
         $form->addInput(new Checkbox('addButton', array('true' => '是否显示按钮'), array('true'), _t('是否显示按钮')));
+        $form->addInput(new Text('userIcon', NULL, 'https://ai.tianli0.top/static/img/PostChat.webp', _t('用户图标'), _t('显示的用户图标地址（仅支持Magic模式）')));
+        $form->addInput(new Text('defaultChatQuestions', NULL, '[]', _t('默认对话问题'), _t('默认的对话问题列表（仅支持Magic模式），使用 JSON 数组格式，例如：["你好","你是谁"]')));
+        $form->addInput(new Text('defaultSearchQuestions', NULL, '[]', _t('默认搜索问题'), _t('默认的搜索问题列表（仅支持Magic模式），使用 JSON 数组格式，例如：["你好","你是谁"]')));
     }
 
     /**
@@ -123,6 +127,10 @@ class PostChat_Plugin implements PluginInterface
             'addButton' => false,
             'beginningText' => '这篇文章介绍了',
             'summaryTheme' => 'default',
+            'userMode' => 'magic',
+            'userIcon' => 'https://ai.tianli0.top/static/img/PostChat.webp',
+            'defaultChatQuestions' => '[]',
+            'defaultSearchQuestions' => '[]',
         ];
 
         foreach ($defaults as $key => $value) {
@@ -173,6 +181,10 @@ class PostChat_Plugin implements PluginInterface
                   userDesc: "' . $settings->userDesc . '",
                   addButton: ' . $addButton . ',
                   beginningText: "' . $settings->beginningText . '",
+                  userMode: "' . $settings->userMode . '",
+                  userIcon: "' . $settings->userIcon . '",
+                  defaultChatQuestions: ' . $settings->defaultChatQuestions . ',
+                  defaultSearchQuestions: ' . $settings->defaultSearchQuestions . ',
                 };
                 </script>
                 <script data-postChat_key="' . $settings->key . '" src="' . $scriptUrl . '"></script>';
